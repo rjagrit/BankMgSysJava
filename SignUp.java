@@ -1,15 +1,19 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.util.Random;
 import com.toedter.calendar.JDateChooser;
-public class SignUp extends JFrame
-{
+import java.awt.event.*;
+
+public class SignUp extends JFrame implements ActionListener {
     JLabel formnum,personalDetails,name,fathername,dob,gender,email,martial,address,city,state,pincode;
     JTextField nametf,fathernametf,gendertf,emailtf,martialtf,addresstf,citytf,statetf,pincodetf;
     JDateChooser dobDc;
     JRadioButton male,female,married,unmarried,other;
 
     JButton next;
+
+    long random;
     SignUp()
     {
         setLayout(null);
@@ -21,7 +25,7 @@ public class SignUp extends JFrame
         label1.setBounds(10,-10,100,100);//dimensions of image
         add(label1); //using add function to place anything on the frame
         Random ran= new Random();
-        long random= Math.abs(ran.nextLong() % 9000L + 1000L);
+        random= Math.abs(ran.nextLong() % 9000L + 1000L);
 
         formnum= new JLabel("Application Form Numbers "+ random);
         formnum.setFont(new Font("Raleway",Font.BOLD,38));
@@ -85,7 +89,7 @@ public class SignUp extends JFrame
         email.setFont(new Font("Raleway",Font.BOLD,19));
         add(email);
         emailtf= new JTextField();
-        emailtf.setFont(new Font("Raleway",Font.BOLD,20));
+        emailtf.setFont(new Font("Raleway",Font.BOLD,15));
         emailtf.setBounds(350,350,300,25);
         add(emailtf);
 
@@ -117,12 +121,12 @@ public class SignUp extends JFrame
         maritalstsgroup.add(unmarried);
         maritalstsgroup.add(other);
 
-        address= new JLabel("Adress");
+        address= new JLabel("Address");
         address.setBounds(100,450,200,30);
         address.setFont(new Font("Raleway",Font.BOLD,19));
         add(address);
         addresstf= new JTextField();
-        addresstf.setFont(new Font("Raleway",Font.BOLD,20));
+        addresstf.setFont(new Font("Raleway",Font.BOLD,15));
         addresstf.setBounds(350,450,300,25);
         add(addresstf);
 
@@ -131,7 +135,7 @@ public class SignUp extends JFrame
         city.setFont(new Font("Raleway",Font.BOLD,19));
         add(city);
         citytf= new JTextField();
-        citytf.setFont(new Font("Raleway",Font.BOLD,20));
+        citytf.setFont(new Font("Raleway",Font.BOLD,15));
         citytf.setBounds(350,500,300,25);
         add(citytf);
 
@@ -140,7 +144,7 @@ public class SignUp extends JFrame
         state.setFont(new Font("Raleway",Font.BOLD,19));
         add(state);
         statetf= new JTextField();
-        statetf.setFont(new Font("Raleway",Font.BOLD,20));
+        statetf.setFont(new Font("Raleway",Font.BOLD,15));
         statetf.setBounds(350,550,300,25);
         add(statetf);
 
@@ -149,7 +153,7 @@ public class SignUp extends JFrame
         pincode.setFont(new Font("Raleway",Font.BOLD,19));
         add(pincode);
         pincodetf= new JTextField();
-        pincodetf.setFont(new Font("Raleway",Font.BOLD,20));
+        pincodetf.setFont(new Font("Raleway",Font.BOLD,15));
         pincodetf.setBounds(350,600,300,25);
         add(pincodetf);
 
@@ -158,6 +162,7 @@ public class SignUp extends JFrame
         next.setForeground(Color.WHITE);
         next.setFont(new Font("Raleway",Font.BOLD,20));
         next.setBounds(550,650,100,30);
+        next.addActionListener(this);// is button ke click par action listener lgana h toh this pass karna padega
         add(next);
         
         getContentPane().setBackground(Color.white);
@@ -171,5 +176,54 @@ public class SignUp extends JFrame
     public static void main(String [] args)
     {
         new SignUp();
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String formno= ""+random; // use "" + to make literal as a string
+        String apname= nametf.getText(); //getText() value will take out the value from textfield
+        String fname= fathernametf.getText();
+        String dob= ((JTextField)dobDc.getDateEditor().getUiComponent()).getText();
+        String gender= null;
+        if(male.isSelected())
+            gender= "Male";
+        else if(female.isSelected())
+            gender= "Female";
+
+        String email= emailtf.getText();
+        String marital= null;
+        if(married.isSelected())
+            marital= "Married";
+        else if(unmarried.isSelected())
+            marital= "Unmarried";
+        else if(other.isSelected())
+            marital= "Other";
+
+        String address= addresstf.getText();
+        String city= citytf.getText();
+        String state= statetf.getText();
+        String pin= pincode.getText();
+
+        try
+        {
+            if(apname.equals("") || fname.equals("") || dob.equals("") || gender=="null" ||
+                    marital=="null" || address.equals("") || city.equals("") || state.equals("") || pin.equals("")) {
+                JOptionPane.showMessageDialog(null, "All Fields are required to be filled");
+            }
+            else
+            {
+                Conn c= new Conn();
+                String query="insert into signup values('"+formno+"','"+apname+"', '"+fname+"','"+dob+"','"+gender+"','"+email+"','"+marital+"','"+address+"','"+city+"','"+pin+"','"+state+"')";
+                c.s.executeUpdate(query);
+
+                //signup2 class object
+                setVisible(false); // make first frame invisible
+                new SignupTwo(formno).setVisible(true); // make second frame visible by making its object
+            }
+        }
+        catch(Exception ae)
+        {
+            System.out.println(ae);
+        }
     }
 }
